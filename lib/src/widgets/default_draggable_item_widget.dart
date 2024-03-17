@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:multi_image_picker_view/multi_image_picker_view.dart';
 import 'package:multi_image_picker_view/src/multi_image_picker_controller_wrapper.dart';
 
+typedef DescriptionFieldCallback = Function(ImageFile, String);
+
 class DefaultDraggableItemWidget extends StatelessWidget {
-  const DefaultDraggableItemWidget({
+  DefaultDraggableItemWidget({
     super.key,
     required this.imageFile,
     this.fit = BoxFit.cover,
@@ -16,7 +18,19 @@ class DefaultDraggableItemWidget extends StatelessWidget {
     this.closeButtonBoxDecoration,
     this.closeButtonMargin = const EdgeInsets.all(4),
     this.closeButtonPadding = const EdgeInsets.all(3),
-  });
+    this.showDescriptionField = false,
+    this.descriptionFieldText = "",
+    this.descriptionFieldReadOnly = false,
+    this.descriptionFieldHint = "Description",
+    this.descriptionFieldPadding =
+        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+    this.descriptionFieldCallback,
+  }) {
+    descriptionController
+      ..text = descriptionFieldText
+      ..addListener(() => descriptionFieldCallback?.call(
+          imageFile, descriptionController.text));
+  }
 
   final ImageFile imageFile;
   final BoxFit fit;
@@ -27,6 +41,13 @@ class DefaultDraggableItemWidget extends StatelessWidget {
   final BoxDecoration? closeButtonBoxDecoration;
   final EdgeInsetsGeometry closeButtonMargin;
   final EdgeInsetsGeometry closeButtonPadding;
+  final TextEditingController descriptionController = TextEditingController();
+  final bool showDescriptionField;
+  final String descriptionFieldText;
+  final bool descriptionFieldReadOnly;
+  final String descriptionFieldHint;
+  final EdgeInsetsGeometry descriptionFieldPadding;
+  final DescriptionFieldCallback? descriptionFieldCallback;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +90,25 @@ class DefaultDraggableItemWidget extends StatelessWidget {
                                   .colorScheme
                                   .onSecondaryContainer)),
                 ),
+              ),
+            ),
+          ),
+        if (showDescriptionField)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: descriptionFieldPadding,
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: descriptionFieldHint,
+                  filled: true,
+                  fillColor: Colors.white70,
+                  isDense: true,
+                ),
+                readOnly: descriptionFieldReadOnly,
+                controller: descriptionController,
+                maxLines: 1,
+                style: Theme.of(context).textTheme.labelMedium,
               ),
             ),
           ),
